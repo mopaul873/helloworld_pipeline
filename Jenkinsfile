@@ -7,17 +7,34 @@ pipeline {
        maven 'M2_HOME'
 
    }
+
+   environment {
+
+       registry = '314146314231.dkr.ecr.us-east-1.amazonaws.com/devops_repository'
+
+       registryCredential = 'jenkins-ecr'
+
+       dockerimage = ''
+
+   }
+
    stages {
 
-       stage('Build') {
+       stage('Checkout'){
+
+           steps{
+
+               git branch: 'main', url: 'https://github.com/utrains/helloworld_pipeline.git'
+
+           }
+
+       }
+
+       stage('Code Build') {
 
            steps {
 
-               sh 'mvn clean'
-
-               sh 'mvn install'
-
-               sh 'mvn package'
+               sh 'mvn clean package'
 
            }
 
@@ -33,25 +50,38 @@ pipeline {
 
        }
 
-       stage('Deploy') {
+       stage('Build Image') {
 
            steps {
 
-               echo 'Deploy Step'
+               script{
 
-               sleep 10
+                   dockerImage = docker.build registry + ":$BUILD_NUMBER"
+
+               } 
 
            }
 
        }
 
-       stage('Docker') {
+       stage('Deploy image') {
 
-           steps {
+           steps{
 
-               echo 'Image step'
+               script{ 
+
+                   docker.withRegistry("https://"+registry,"ecr:us-east-1:"+registryCredential) {
+
+                       dockerImage.push()
+
+                   }
+
+               }
 
            }
-       }
+
+       }  
+
    }
+
 }
