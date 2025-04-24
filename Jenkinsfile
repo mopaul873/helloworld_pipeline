@@ -24,7 +24,7 @@ pipeline {
 
            steps{
 
-               git branch: 'main', url: 'https://github.com/utrains/helloworld_pipeline.git'
+               git branch: 'main', url: 'https://github.com/mopaul873/helloworld_pipeline.git'
 
            }
 
